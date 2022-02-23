@@ -11,6 +11,7 @@ type Locker struct {
 	DB *sql.DB
 }
 
+/* Get function to get the items from the database */
 func (locker *Locker) Get() []Item {
 	items := []Item{}
 	rows, err := locker.DB.Query(`
@@ -34,6 +35,7 @@ func (locker *Locker) Get() []Item {
 	return items
 }
 
+/* Add function to add the items in the database */
 func (locker *Locker) Add(item Item) {
 	stmt, err := locker.DB.Prepare(`
 		INSERT INTO gosafe (item, password) values (?, ?) 
@@ -44,6 +46,7 @@ func (locker *Locker) Add(item Item) {
 	stmt.Exec(item.Name, item.Password)
 }
 
+/* Checks for database and creates new if not present */
 func NewPass(db *sql.DB) *Locker {
 
 	stmt, err := db.Prepare(`
