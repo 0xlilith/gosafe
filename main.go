@@ -7,6 +7,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"gosafe/gosafe"
@@ -69,7 +70,9 @@ func main() {
 
 	/* check for show flag */
 	if *show {
-		fmt.Println(*show)
+		items := locker.Get()
+		// fmt.Println(items)
+		PrettyPrint(&items)
 		os.Exit(0)
 	}
 
@@ -107,4 +110,14 @@ func gen(length int) string {
 	})
 
 	return string(buf)
+}
+
+func PrettyPrint(data interface{}) {
+	var p []byte
+	p, err := json.MarshalIndent(data, "", "\t")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("%s \n", p)
 }

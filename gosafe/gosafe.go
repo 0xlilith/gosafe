@@ -11,16 +11,35 @@ type Locker struct {
 	DB *sql.DB
 }
 
-// func (locker *Locker) Get() []Item {
-
-// }
+func (locker *Locker) Get() []Item {
+	items := []Item{}
+	rows, err := locker.DB.Query(`
+		SELECT * from gosafe 
+	`)
+	if err != nil {
+		panic("failed to connect sql server: " + err.Error())
+	}
+	var id int
+	var name string
+	var password string
+	for rows.Next() {
+		rows.Scan(&id, &name, &password)
+		item := Item{
+			ID:       id,
+			Name:     name,
+			Password: password,
+		}
+		items = append(items, item)
+	}
+	return items
+}
 
 func (locker *Locker) Add(item Item) {
-	stmt, e := locker.DB.Prepare(`
+	stmt, err := locker.DB.Prepare(`
 		INSERT INTO gosafe (item, password) values (?, ?) 
 	`)
-	if e != nil {
-		panic("failed to connect sql server: " + e.Error())
+	if err != nil {
+		panic("failed to connect sql server: " + err.Error())
 	}
 	stmt.Exec(item.Name, item.Password)
 }
