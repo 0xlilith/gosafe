@@ -6,11 +6,15 @@ package main
  */
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
+	"gosafe/gosafe"
 	"math/rand"
 	"os"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 /*
@@ -18,7 +22,7 @@ import (
 */
 var (
 	help *bool
-	show *string
+	show *bool
 	add  *string
 )
 
@@ -41,28 +45,43 @@ var (
 
 func init() {
 	help = flag.Bool("help", false, "Show help")
-	show = flag.String("show", "all", "show passwords")
+	show = flag.Bool("show", false, "show passwords")
 	add = flag.String("add", "", "add name to which you want to generate password for")
 }
 
 func main() {
+
+	/* connecting database */
+	db, err := sql.Open("sqlite3", "./gosafe.db")
+	if err != nil {
+		panic("failed to connect sql server: " + err.Error())
+	}
+	/* creating new table */
+	locker := gosafe.NewPass(db)
+
 	flag.Parse()
 
-	args := flag.Args()
-
-	if len(args) == 0 {
-		fmt.Println("Usage[To add] : gosafe [-add] twitter \nUsage[To show]: gosafe [-show] twitter (default all)")
-		os.Exit(0)
-	}
-
+	/* check for help flag */
 	if *help {
 		flag.Usage()
 		os.Exit(0)
 	}
+
+	/* check for show flag */
+	if *show {
+		fmt.Println(*show)
+		os.Exit(0)
+	}
+
 	pass := gen(length)
-	fmt.Println(pass)
-	fmt.Println("show:", *show)
-	fmt.Println("add:", *add)
+	fmt.Println("Name:", *add, "\tPassword:", pass)
+
+	/* adding to the database */
+	locker.Add(gosafe.Item{
+		Name:     *add,
+		Password: pass,
+	})
+
 }
 
 /*
