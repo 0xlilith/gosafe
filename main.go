@@ -6,9 +6,20 @@ package main
  */
 
 import (
+	"flag"
 	"fmt"
 	"math/rand"
+	"os"
 	"time"
+)
+
+/*
+	flag variables
+*/
+var (
+	help *bool
+	show *string
+	add  *string
 )
 
 /*
@@ -28,13 +39,35 @@ var (
 	length = 25
 )
 
+func init() {
+	help = flag.Bool("help", false, "Show help")
+	show = flag.String("show", "all", "show passwords")
+	add = flag.String("add", "", "add name to which you want to generate password for")
+}
+
 func main() {
+	flag.Parse()
+
+	args := flag.Args()
+
+	if len(args) == 0 {
+		fmt.Println("Usage[To add] : gosafe [-add] twitter \nUsage[To show]: gosafe [-show] twitter (default all)")
+		os.Exit(0)
+	}
+
+	if *help {
+		flag.Usage()
+		os.Exit(0)
+	}
 	pass := gen(length)
 	fmt.Println(pass)
+	fmt.Println("show:", *show)
+	fmt.Println("add:", *add)
 }
 
 /*
 	function gen: generates random values from the var list
+	RULE: there has to be one digit, one sprcial char and one Upper case char
 */
 func gen(length int) string {
 	rand.Seed(time.Now().UnixNano())
