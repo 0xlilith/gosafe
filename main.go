@@ -72,7 +72,7 @@ func main() {
 	if *show {
 		items := locker.Get()
 		// fmt.Println(items)
-		PrettyPrint(&items)
+		Printlist(&items)
 		os.Exit(0)
 	}
 
@@ -112,7 +112,8 @@ func gen(length int) string {
 	return string(buf)
 }
 
-func PrettyPrint(data interface{}) {
+/* Print out in JSON format */
+func Printlist(data interface{}) {
 	var p []byte
 	p, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
